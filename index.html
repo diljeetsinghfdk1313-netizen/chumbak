@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0f">
+  <title>MOVIE NAME</title>
+  <style>
+    @property --progress {
+      syntax: "<angle>";
+      inherits: false;
+      initial-value: 0deg;
+    }
+    :root {
+      color-scheme: dark;
+      --paper: #f3e8d5;
+      --gold: #d6ad76;
+      --dim: #8c827b;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: max(25px, env(safe-area-inset-top)) 15px max(40px, env(safe-area-inset-bottom));
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse 75% 33% at 50% 0%, rgba(119, 74, 54, .22), transparent 100%),
+        radial-gradient(ellipse 80% 42% at 50% 52%, rgba(61, 37, 47, .12), transparent 100%),
+        #09090b;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Devanagari", Mangal, sans-serif;
+      text-align: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .instruction {
+      position: relative;
+      margin: 0 0 19px;
+      padding-bottom: 15px;
+      color: #f1dfc8;
+      font-size: clamp(18px, 5.1vw, 21px);
+      font-weight: 600;
+      line-height: 1.55;
+      text-wrap: balance;
+    }
+    .instruction::after {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 46px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      content: "";
+      transform: translateX(-50%);
+    }
+    .poster-frame {
+      position: relative;
+      width: min(100%, 390px);
+      margin: 0 auto;
+      padding: 6px;
+      border: 1px solid rgba(214, 173, 118, .39);
+      border-radius: 19px;
+      background: linear-gradient(145deg, rgba(237, 206, 159, .23), rgba(49, 37, 37, .68) 42%, rgba(214, 173, 118, .11));
+      box-shadow: 0 28px 70px rgba(0,0,0,.64), 0 0 65px rgba(159, 91, 62, .13);
+    }
+    .poster-art {
+      display: block;
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      border-radius: 13px;
+      background: #181116;
+    }
+    h1 {
+      margin: 22px 0 30px;
+      color: #f0e4d2;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(27px, 7.6vw, 38px);
+      font-weight: 500;
+      letter-spacing: .085em;
+      line-height: 1.22;
+      text-shadow: 0 2px 28px rgba(218, 172, 111, .13);
+      overflow-wrap: anywhere;
+    }
+    .ad-slot {
+      min-height: 105px;
+      margin: 22px 0;
+      border-top: 1px solid rgba(214, 173, 118, .075);
+      border-bottom: 1px solid rgba(214, 173, 118, .075);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.012), transparent);
+    }
+    .timer-box {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      margin-top: 27px;
+      padding: 33px 20px 29px;
+      border: 1px solid rgba(167, 174, 219, .15);
+      border-radius: 25px;
+      background: linear-gradient(145deg, rgba(28, 30, 42, .78), rgba(14, 15, 21, .9) 68%);
+      box-shadow: 0 24px 60px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.055);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+    }
+    .timer-box::before {
+      position: absolute;
+      z-index: -1;
+      top: -120px;
+      left: 50%;
+      width: 250px;
+      height: 190px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(115, 128, 231, .16), rgba(145, 104, 222, .06) 48%, transparent 72%);
+      content: "";
+      filter: blur(40px);
+      transform: translateX(-50%);
+    }
+    .timer-box h2 {
+      margin: 0 0 28px;
+      color: #a8adbd;
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: .2em;
+      line-height: 1.6;
+      text-transform: uppercase;
+    }
+    .timer {
+      position: relative;
+      display: grid;
+      width: clamp(172px, 45vw, 188px);
+      height: clamp(172px, 45vw, 188px);
+      place-items: center;
+      margin: auto;
+      border-radius: 50%;
+      background: conic-gradient(
+        from -90deg,
+        #75ccff 0deg,
+        #a58bff var(--progress, 0deg),
+        rgba(255,255,255,.085) var(--progress, 0deg) 360deg
+      );
+      box-shadow: 0 0 38px rgba(121, 142, 255, .1), 0 0 0 7px rgba(255,255,255,.018);
+      transition: box-shadow .8s ease, filter .8s ease;
+    }
+    .timer::before {
+      position: absolute;
+      z-index: -1;
+      inset: -9px;
+      border: 1px solid rgba(157, 166, 236, .13);
+      border-radius: 50%;
+      content: "";
+      opacity: .42;
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .timer-section.is-running .timer {
+      box-shadow: 0 0 44px rgba(121, 142, 255, .2), 0 0 0 7px rgba(255,255,255,.025);
+      filter: drop-shadow(0 0 7px rgba(142, 130, 255, .14));
+    }
+    .timer-section.is-running .timer::before {
+      opacity: .85;
+      animation: calmHalo 3.6s ease-in-out infinite;
+    }
+    .timer-section.is-complete .timer {
+      box-shadow: 0 0 48px rgba(139, 157, 255, .24), 0 0 0 8px rgba(255,255,255,.035);
+      filter: drop-shadow(0 0 10px rgba(173, 141, 255, .2));
+    }
+    .timer-section.is-complete .timer::before {
+      opacity: .95;
+    }
+    #seconds.tick {
+      animation: numberTick .38s cubic-bezier(.2,.75,.25,1);
+    }
+    .timer-inner {
+      display: grid;
+      width: calc(100% - 11px);
+      height: calc(100% - 11px);
+      place-content: center;
+      border: 1px solid rgba(191, 198, 235, .13);
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 35%, #202332, #12131a 73%);
+      box-shadow: inset 0 1px rgba(255,255,255,.04);
+    }
+    #seconds {
+      color: #f2f4ff;
+      font-size: clamp(70px, 21vw, 82px);
+      font-weight: 560;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: -.075em;
+      text-shadow: 0 0 27px rgba(162, 176, 255, .24);
+    }
+    .unit {
+      margin-top: 10px;
+      color: #858b9e;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .22em;
+    }
+    #status {
+      min-height: 18px;
+      margin: 19px 0 0;
+      color: #aeb3c3;
+      font-size: 11px;
+    }
+    @keyframes calmHalo {
+      0%, 100% { opacity: .45; transform: scale(.99); }
+      50% { opacity: .85; transform: scale(1.025); }
+    }
+    @keyframes numberTick {
+      0% { opacity: .68; transform: translateY(2px) scale(.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (max-width: 360px) {
+      body { padding-right: 13px; padding-left: 13px; }
+      .poster-frame { width: 100%; }
+      .timer-box { padding-right: 14px; padding-left: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- Change this line if you want different Hindi wording. -->
+    <p class="instruction">ये मूवी पाने के लिए नीचे तक स्क्रॉल करें</p>
+
+    <!-- Replace this sample SVG with your own poster image when ready. -->
+    <div class="poster-frame">
+      <svg class="poster-art" viewBox="0 0 720 1080" role="img" aria-label="Sample cinematic movie poster artwork">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2=".15" y2="1">
+            <stop stop-color="#10121c"/>
+            <stop offset=".42" stop-color="#38232c"/>
+            <stop offset=".72" stop-color="#a34f42"/>
+            <stop offset="1" stop-color="#171116"/>
+          </linearGradient>
+          <radialGradient id="sun">
+            <stop stop-color="#fff0ce"/>
+            <stop offset=".58" stop-color="#e9ad76"/>
+            <stop offset="1" stop-color="#c26d54"/>
+          </radialGradient>
+          <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="#b9634d" stop-opacity=".72"/>
+            <stop offset=".42" stop-color="#33212a"/>
+            <stop offset="1" stop-color="#101014"/>
+          </linearGradient>
+          <linearGradient id="coat" x1="0" y1="0" x2="1" y2=".2">
+            <stop stop-color="#111116"/>
+            <stop offset=".48" stop-color="#282128"/>
+            <stop offset="1" stop-color="#111116"/>
+          </linearGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="35"/></filter>
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="2" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer><feFuncA type="table" tableValues="0 .1"/></feComponentTransfer>
+            <feBlend in="SourceGraphic" mode="soft-light"/>
+          </filter>
+          <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="#08090e" stop-opacity=".08"/>
+            <stop offset=".55" stop-color="#08090e" stop-opacity="0"/>
+            <stop offset="1" stop-color="#08090e" stop-opacity=".72"/>
+          </linearGradient>
+        </defs>
+        <rect width="720" height="1080" fill="url(#sky)"/>
+        <ellipse cx="374" cy="445" rx="258" ry="160" fill="#d77e5b" opacity=".28" filter="url(#glow)"/>
+        <circle cx="372" cy="404" r="151" fill="url(#sun)" opacity=".92"/>
+        <circle cx="372" cy="404" r="176" fill="none" stroke="#f5c798" stroke-opacity=".22"/>
+        <path d="M0 534 80 496 133 527 190 477 254 522 322 472 386 522 452 481 515 523 584 484 654 521 720 492V673H0Z" fill="#24202a"/>
+        <path d="M0 586 72 550 135 573 202 533 270 578 344 532 415 570 488 535 551 579 628 541 720 576V724H0Z" fill="#17171d"/>
+        <g fill="#dc9669" opacity=".34">
+          <rect x="46" y="580" width="5" height="25"/><rect x="66" y="568" width="5" height="32"/>
+          <rect x="115" y="591" width="5" height="23"/><rect x="176" y="567" width="5" height="31"/>
+          <rect x="202" y="582" width="5" height="21"/><rect x="510" y="574" width="5" height="30"/>
+          <rect x="548" y="590" width="5" height="22"/><rect x="603" y="566" width="5" height="34"/>
+          <rect x="640" y="581" width="5" height="25"/><rect x="680" y="569" width="5" height="29"/>
+        </g>
+        <path d="M0 665 295 619 425 619 720 665V1080H0Z" fill="url(#road)"/>
+        <path d="M351 660h18l15 120h-48z" fill="#edbd85" opacity=".24"/>
+        <path d="m349 812 22 0 20 105h-62z" fill="#db9b6e" opacity=".19"/>
+        <path d="m345 943 30 0 35 137h-100z" fill="#c27a5b" opacity=".16"/>
+        <path d="M75 743 0 781M645 743l75 38M167 820 0 863M553 820l167 43" stroke="#e4a578" stroke-opacity=".19" stroke-width="3"/>
+        <ellipse cx="361" cy="655" rx="82" ry="18" fill="#e0a274" opacity=".16" filter="url(#glow)"/>
+        <circle cx="360" cy="615" r="39" fill="#111116" stroke="#b8795e" stroke-opacity=".48" stroke-width="3"/>
+        <path d="M326 607q34-48 68 0l-2 17h-65z" fill="#17151a"/>
+        <path d="M326 655q34-28 68 0l38 132-28 18 11 275H304l14-275-30-18z" fill="url(#coat)" stroke="#b8795e" stroke-opacity=".42" stroke-width="3"/>
+        <path d="M337 650q25 35 48 0l-3 206-25 37-24-37z" fill="#a34f42" opacity=".8"/>
+        <path d="m306 690-51 108 21 11 66-92M410 690l53 105-21 14-68-91" fill="#19171c" stroke="#a46d59" stroke-opacity=".36" stroke-width="4"/>
+        <path d="M0 0h720v1080H0z" fill="url(#shade)"/>
+        <rect width="720" height="1080" filter="url(#grain)" opacity=".24"/>
+      </svg>
+    </div>
+
+    <!-- Change the movie name here. -->
+    <h1>MOVIE NAME</h1>
+
+    <!-- Paste your Adsterra ad code inside this slot when ready. -->
+    <div class="ad-slot"></div>
+
+    <!-- Optional second Adsterra placement. -->
+    <div class="ad-slot"></div>
+
+    <section class="timer-box timer-section" id="timer-section">
+      <h2>Wait 10s to get the movie</h2>
+      <div class="timer" id="timer" role="timer" aria-label="10 seconds remaining">
+        <div class="timer-inner">
+          <span id="seconds">10</span>
+          <span class="unit">SECONDS</span>
+        </div>
+      </div>
+      <p id="status" aria-live="polite"> </p>
+    </section>
+  </main>
+
+  <script>
+    // Add your Telegram group link here, for example: "https://t.me/your_group"
+    const TELEGRAM_URL = "";
+    const TOTAL_SECONDS = 10;
+    const section = document.getElementById("timer-section");
+    const timer = document.getElementById("timer");
+    const secondsText = document.getElementById("seconds");
+    const status = document.getElementById("status");
+    let started = false;
+
+    function startTimer() {
+      if (started) return;
+      started = true;
+      section.classList.add("is-running");
+      const startTime = Date.now();
+      let shownSeconds = TOTAL_SECONDS;
+
+      function update() {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const remaining = Math.max(0, TOTAL_SECONDS - elapsed);
+        const wholeSeconds = Math.ceil(remaining);
+        const progress = Math.min(elapsed / TOTAL_SECONDS, 1) * 360;
+        if (wholeSeconds !== shownSeconds) {
+          shownSeconds = wholeSeconds;
+          secondsText.classList.remove("tick");
+          void secondsText.offsetWidth;
+          secondsText.textContent = wholeSeconds;
+          secondsText.classList.add("tick");
+        }
+        timer.style.setProperty("--progress", progress + "deg");
+        timer.setAttribute("aria-label", wholeSeconds + " seconds remaining");
+
+        if (remaining > 0) {
+          window.requestAnimationFrame(update);
+          return;
+        }
+
+        section.classList.remove("is-running");
+        section.classList.add("is-complete");
+        if (/^https:\/\/t\.me\/[a-zA-Z0-9_+/.-]+\/?$/.test(TELEGRAM_URL)) {
+          window.location.href = TELEGRAM_URL;
+        } else {
+          status.textContent = "Add your Telegram link to enable redirect.";
+        }
+      }
+      update();
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        startTimer();
+        observer.disconnect();
+      }
+    }, { threshold: 0.35 });
+    observer.observe(section);
+  </script>
+</body>
+</html>
